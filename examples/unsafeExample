@@ -1,0 +1,13 @@
+/**
+* unsafeExample.js : An example of how to use the decode function
+*/
+
+var ini = require("../ini.js");
+
+// Making an safe string
+var safeString = '\"safe string\"';
+console.log(safeString);
+
+// Making an unsafe string out of the safe one
+var unsafeString = ini.safe(safeString);
+console.log(unsafeString);

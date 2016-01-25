@@ -1,0 +1,25 @@
+/**
+* decodeExample.js : An example of how to use the decode function
+*/
+var ini = require('../ini.js');
+
+// An example of an ini object
+var data = {
+  'number':  {count: 10},
+  'string':  {drink: 'white russian'},
+  'boolean': {isTrue: true},
+  'nested boolean': {theDude: {abides: true, rugCount: 1}}
+};
+
+// Encoding the data variable for the sake of the example
+var encodedData = ini.encode(data);
+
+console.log("This is the data in encoded form object form :\n")
+console.log(encodedData);
+
+// An example of decoding an encoded string
+var decodedData = ini.decode(encodedData);
+
+console.log("\n-----------------\n");
+console.log("This is the data in decoded string form:\n");
+console.log(decodedData);

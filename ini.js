@@ -4,12 +4,22 @@ exports.stringify = exports.encode = encode
 exports.safe = safe
 exports.unsafe = unsafe
 
+// Checks to see what platform of computer is being used, and changes the newline character appropriately
 var eol = process.platform === 'win32' ? '\r\n' : '\n'
 
+/**
+* Returns the object (obj) as ini-style formatted string
+* @param {string} obj - An ini-style formatted string (if the optional parameter options.section is given, then all top-level properties of the object are put into this section).
+* @param {(Object|String)} [opt] - The options specified for the given .ini file
+* @param {string} [opt.section=none] - A string which will be the first section in the encoded ini data.
+* @param {string} [opt.whitespace=false] - Boolean to specify whether to put the whitespace around the "=" character.
+* @returns {string} out - An ini-style formatted string
+**/
 function encode (obj, opt) {
   var children = []
   var out = ''
 
+  // Creates a default options object if a string is passed in instead of an options object
   if (typeof opt === 'string') {
     opt = {
       section: opt,
@@ -22,6 +32,7 @@ function encode (obj, opt) {
 
   var separator = opt.whitespace ? ' = ' : '='
 
+  // Puts all keys into proper format for the output
   Object.keys(obj).forEach(function (k, _, __) {
     var val = obj[k]
     if (val && Array.isArray(val)) {
@@ -39,6 +50,7 @@ function encode (obj, opt) {
     out = '[' + safe(opt.section) + ']' + eol + out
   }
 
+  // Puts all children into proper format for the output (if there are any)
   children.forEach(function (k, _, __) {
     var nk = dotSplit(k).join('\\.')
     var section = (opt.section ? opt.section + '.' : '') + nk
@@ -55,6 +67,7 @@ function encode (obj, opt) {
   return out
 }
 
+// Helper function for encode which returns an array in the correct format
 function dotSplit (str) {
   return str.replace(/\1/g, '\u0002LITERAL\\1LITERAL\u0002')
     .replace(/\\\./g, '\u0001')
@@ -64,6 +77,11 @@ function dotSplit (str) {
   })
 }
 
+/**
+* Decodes the ini-style formatted string into a nested object.
+* @param {string} str - An ini-style formatted string
+* @return {Object} out - A nested ini object
+*/
 function decode (str) {
   var out = {}
   var p = out
@@ -138,11 +156,21 @@ function decode (str) {
   return out
 }
 
+/**
+* Returns whether the string is quoted
+* @param {string} val - Value to check to see if there's a quote at the beginning and end of the passed in string
+* @return {boolean} - True if there are quotes at the beginning and end of the string, false if not
+*/
 function isQuoted (val) {
   return (val.charAt(0) === '"' && val.slice(-1) === '"') ||
     (val.charAt(0) === "'" && val.slice(-1) === "'")
 }
 
+/**
+* Returns a "safe" version of the string passed in that properly escapes all neccesary comments / special characters
+* @param {string} val - String that needs to be made safe
+* @return {string} - String passed in made "safe" by esacping the necessary special characters
+*/
 function safe (val) {
   return (typeof val !== 'string' ||
     val.match(/[=\r\n]/) ||
@@ -154,6 +182,11 @@ function safe (val) {
       val.replace(/;/g, '\\;').replace(/#/g, '\\#')
 }
 
+/**
+* Returns an "unsafe" version of the string passed in.
+* @param {string} val - String that needs needs the special characters un-escaped.
+* @return {string} - A string with all the special characters un-escaped.
+*/
 function unsafe (val, doUnesc) {
   val = (val || '').trim()
   if (isQuoted(val)) {
